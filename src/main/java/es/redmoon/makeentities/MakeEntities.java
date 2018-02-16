@@ -1,4 +1,3 @@
-
 package es.redmoon.makeentities;
 
 import java.io.BufferedWriter;
@@ -126,35 +125,10 @@ public class MakeEntities {
         bw.write("import org.springframework.stereotype.Repository;\n");
         bw.write("\n");
 
+        bw.write("@Repository\n");
+        bw.write("public interface " + sNombreClass + " extends CrudRepository<"+StringUtils.capitalize(tabla)+",> {\n");
         
-        bw.write("public interface " + sNombreClass + " extends CrudRepository<"+StringUtils.capitalize(tabla)+"> {\n");
-        
-        bw.write("\n");
-        
-        // declaración de variables
-        for (Object key : obj.keySet()) {
-            bw.write("private String "+key.toString()+";\n");
-        }
-        
-        bw.write("\n");
-        
-        // bloque setters
-        for (Object key : obj.keySet()) {
-
-            bw.write("public String set"+StringUtils.capitalize(key.toString())+"(String "+key.toString()+") {\n");
-            bw.write("this."+key.toString()+"="+key.toString()+";\n");
-            bw.write("}\n");
-            bw.write("\n");
-        }
-        
-        // bloque getters
-        for (Object key : obj.keySet()) {
-
-            bw.write("public String get"+StringUtils.capitalize(key.toString())+"() {\n");
-            bw.write("return "+key.toString()+";\n");
-            bw.write("}\n");
-            bw.write("\n");
-        }
+        bw.write("\n");        
         
         // cerrar el pie de la clase
         bw.write("}\n");
@@ -170,97 +144,35 @@ public class MakeEntities {
      */
     public void MakeRestController(JSONObject obj, String tabla) throws IOException{
         
-        String sFichero = "sql.java";
+        String sFichero = "RestController.java";
         BufferedWriter bw = new BufferedWriter(new FileWriter(sFichero));
-        String sNombreClass= "SQL"+StringUtils.capitalize(tabla);
+        String sNombreClass= StringUtils.capitalize(tabla)+"Controller";
         
-        // public class SQLCias extends PoolConn {
-        bw.write("public class " + sNombreClass + " extends PoolConn {\n");
-        bw.write("\n");
-        bw.write("private final String version;\n");
-        bw.write("\n");
-        bw.write("public "+sNombreClass+"(String myPool) throws SQLException, NamingException {\n");
-        bw.write("super(myPool);\n");
-        bw.write("this.version = myPool;\n");
-        bw.write("}\n");
+        // imports
+        bw.write("import org.slf4j.Logger;\n");
+        bw.write("import org.slf4j.LoggerFactory;\n");
+        bw.write("import org.springframework.web.bind.annotation.*;\n");
         bw.write("\n");
         
-        // Crear un bloque de lista de tuplas
-        bw.write("public List<Tuplas"+StringUtils.capitalize(tabla)+"> getLista"+StringUtils.capitalize(tabla)+"() throws SQLException {\n");
-        bw.write("Connection conn = PGconectar();\n");
-        bw.write("List<Tuplas"+StringUtils.capitalize(tabla)+"> tp = new ArrayList<>();\n");
-        
-        bw.write("try {\n");
-         
-
-            bw.write("PreparedStatement st = conn.prepareStatement(\"SELECT * from "+tabla+"\");\n");
-            
-            bw.write("ResultSet rs = st.executeQuery();\n");
-        
-            
-            bw.write("while (rs.next()) {\n");
-                
-                bw.write("tp.add( new Tuplas"+StringUtils.capitalize(tabla)+".\n");
-                        bw.write("Builder().\n");
-                        bw.write("build()\n");
-                         bw.write(");\n");
-                
-            bw.write("}\n");
-            
-        bw.write("} catch (SQLException e) {\n");
-
-            bw.write("System.out.println(\""+tabla+" Connection Failed!\");\n");
-
-        bw.write("} finally {\n");
-
-            bw.write("conn.close();\n");
-        bw.write("}\n");
-        
-        bw.write("return tp;\n");
-        bw.write("}\n");
+        // @RestController
+        bw.write("@RestController\n");
+        bw.write("public class " + sNombreClass + " {\n");
+        bw.write("\n");
+        bw.write("private static final Logger logger = LoggerFactory.getLogger("+sNombreClass+".class);\n");
+        bw.write("\n");
         bw.write("\n");
         
-        
-        
-        // Crear un bloque de lista de tuplas con paginación
-        bw.write("public List<Tuplas"+StringUtils.capitalize(tabla)+"> getLista"+StringUtils.capitalize(tabla)+"(int NumPage, int SizePage, String ) throws SQLException {\n");
-        bw.write("Connection conn = PGconectar();\n");
-        bw.write("List<Tuplas"+StringUtils.capitalize(tabla)+"> tp = new ArrayList<>();\n");
-        
-        bw.write("try {\n");
-         
+        /*
+        @Autowired
+        private final FincasRepository fincasRepository;
 
-            bw.write("int Offset = SizePage * (NumPage-1);\n");
-            bw.write("PreparedStatement st = conn.prepareStatement(\"SELECT * from "+tabla+" where estanque = ? order by id desc LIMIT ? OFFSET ?\");\n");
-            bw.write("st.setInt(1, Integer.parseInt(xEstanque) );\n");
-            bw.write("st.setInt(2, SizePage);\n");
-            bw.write("st.setInt(3, Offset);\n");
-            
-            bw.write("ResultSet rs = st.executeQuery();\n");
-        
-            
-            bw.write("while (rs.next()) {\n");
-                
-                bw.write("tp.add( new Tuplas"+StringUtils.capitalize(tabla)+".\n");
-                        bw.write("Builder().\n");
-                        bw.write("build()\n");
-                         bw.write(");\n");
-                
-            bw.write("}\n");
-            
-        bw.write("} catch (SQLException e) {\n");
-
-            bw.write("System.out.println(\""+tabla+" Connection Failed!\");\n");
-
-        bw.write("} finally {\n");
-
-            bw.write("conn.close();\n");
+        public FincasController(FincasRepository fincasRepository) {
+            this.fincasRepository = fincasRepository;
+        }*/
+        bw.write("@Autowired\n");
+        bw.write("public "+sNombreClass+"("+StringUtils.capitalize(tabla)+"Repository "+tabla+"Repository) {\n");
+        bw.write("this."+tabla+"Repository = "+tabla+"Repository;\n");
         bw.write("}\n");
-        
-        bw.write("return tp;\n");
-        bw.write("}\n");
-        bw.write("\n");
-        
         
         bw.write("}\n");
         bw.close();
