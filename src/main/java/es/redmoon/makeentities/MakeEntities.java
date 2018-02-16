@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package es.redmoon.makeentities;
 
 import java.io.BufferedWriter;
@@ -16,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 
 /**
- *
+ * 
  * @author antonio
  */
 public class MakeEntities {
@@ -53,13 +50,125 @@ public class MakeEntities {
         return obj;
     }
     
+    
     /**
-     * Crear el esqueleto de la clase controlador del código SQL
+     * Crea un fichero con la clase de las tuplas de una tabla PostgreSQL
+     * @param obj
+     * @param tabla
+     * @throws IOException 
+     */
+    public void MakeEntityClass(JSONObject obj, String tabla) throws IOException
+    {
+        String sFichero = "tuplas.java";
+
+        String Tipo;
+
+        BufferedWriter bw = new BufferedWriter(new FileWriter(sFichero));
+        
+        // escribir la cabecera de la clase
+        bw.write("import lombok.Data;\n");
+        bw.write("import java.io.Serializable;\n");
+        bw.write("import javax.persistence.Entity;\n");
+        bw.write("import javax.persistence.Id;\n");
+        bw.write("\n");
+        bw.write("\n");
+        
+        bw.write("@Data\n");
+        bw.write("@Entity\n");
+        bw.write("public class " + StringUtils.capitalize(tabla) + " implements Serializable {");
+        bw.write("\n");
+        
+        // bloque de declaración de variables private final
+        
+        for (Object key : obj.keySet()) {
+            //System.out.println(obj.get(key).toString());
+
+            switch (obj.get(key).toString()) {
+                case "character varying":
+                    Tipo="String";
+                    break;
+                case "text":
+                    Tipo="String";
+                    break;
+                case "character":
+                    Tipo="String";
+                    break;
+                case "timestamp without time zone":
+                    Tipo="timestamp";
+                    break;
+                default:
+                    Tipo=obj.get(key).toString();
+            }
+            bw.write("private "+Tipo+" "+key.toString()+";\n");
+        }
+        bw.write("\n");
+                
+        // cerrar el pie de la clase
+        bw.write("}\n");
+        bw.close();
+    }
+    
+    
+    /**
+     * Generate file for Repository
+     * @param obj
+     * @param tabla
+     * @throws IOException 
+     */
+    public void MakeRepository(JSONObject obj, String tabla) throws IOException
+    {
+        String sFichero = "Repository.java";
+        BufferedWriter bw = new BufferedWriter(new FileWriter(sFichero));
+        String sNombreClass= StringUtils.capitalize(tabla)+"Repository";
+        
+        bw.write("import org.springframework.data.repository.CrudRepository;\n");
+        bw.write("import org.springframework.data.repository.query.Param;\n");
+        bw.write("import org.springframework.stereotype.Repository;\n");
+        bw.write("\n");
+
+        
+        bw.write("public interface " + sNombreClass + " extends CrudRepository<"+StringUtils.capitalize(tabla)+"> {\n");
+        
+        bw.write("\n");
+        
+        // declaración de variables
+        for (Object key : obj.keySet()) {
+            bw.write("private String "+key.toString()+";\n");
+        }
+        
+        bw.write("\n");
+        
+        // bloque setters
+        for (Object key : obj.keySet()) {
+
+            bw.write("public String set"+StringUtils.capitalize(key.toString())+"(String "+key.toString()+") {\n");
+            bw.write("this."+key.toString()+"="+key.toString()+";\n");
+            bw.write("}\n");
+            bw.write("\n");
+        }
+        
+        // bloque getters
+        for (Object key : obj.keySet()) {
+
+            bw.write("public String get"+StringUtils.capitalize(key.toString())+"() {\n");
+            bw.write("return "+key.toString()+";\n");
+            bw.write("}\n");
+            bw.write("\n");
+        }
+        
+        // cerrar el pie de la clase
+        bw.write("}\n");
+        bw.close();
+        
+    }
+    
+     /**
+     * Rest Controller
      * @param obj con los campos de la tabla y sus tipos de datos
      * @param tabla
      * @throws IOException 
      */
-    public void MakeSQL(JSONObject obj, String tabla) throws IOException{
+    public void MakeRestController(JSONObject obj, String tabla) throws IOException{
         
         String sFichero = "sql.java";
         BufferedWriter bw = new BufferedWriter(new FileWriter(sFichero));
@@ -157,160 +266,7 @@ public class MakeEntities {
         bw.close();
     
     }
-    
-    /**
-     * Crea un fichero con la clase de las tuplas de una tabla PostgreSQL
-     * @param obj
-     * @param tabla
-     * @throws IOException 
-     */
-    public void MakeTuplasClass(JSONObject obj, String tabla) throws IOException
-    {
-        String sFichero = "tuplas.java";
-        String sNombreClass= "Tuplas";
-        String Tipo;
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter(sFichero));
-        
-        // escribir la cabecera de la clase
-        sNombreClass=StringUtils.capitalize(tabla);
-        bw.write("@Data\n");
-        bw.write("@Entity\n");
-        bw.write("public class " + sNombreClass + " implements Serializable {");
-        bw.write("\n");
-        
-        // bloque de declaración de variables private final
-        
-        for (Object key : obj.keySet()) {
-            //System.out.println(obj.get(key).toString());
-
-            switch (obj.get(key).toString()) {
-                case "character varying":
-                    Tipo="String";
-                    break;
-                case "text":
-                    Tipo="String";
-                    break;
-                case "character":
-                    Tipo="String";
-                    break;
-                case "timestamp without time zone":
-                    Tipo="timestamp";
-                    break;
-                default:
-                    Tipo=obj.get(key).toString();
-            }
-            bw.write("private "+Tipo+" "+key.toString()+";\n");
-        }
-        bw.write("\n");
-        
-        // bloque getters
-        for (Object key : obj.keySet()) {
-
-            bw.write("public String get"+StringUtils.capitalize(key.toString())+"() {\n");
-            bw.write("return "+key.toString()+";\n");
-            bw.write("}\n");
-            bw.write("\n");
-        }
-        
-        // bloque builder
-        // public static class Builder {
-        bw.write("public static class Builder {\n");
-        
-        // declaración de variables
-        for (Object key : obj.keySet()) {
-            bw.write("private String "+key.toString()+";\n");
-        }
-        bw.write("private String version\n");
-        bw.write("\n");
-        
-        // public Builder() {
-        bw.write("public Builder() {\n");
-        bw.write("this.version = \"1.0\"\n");
-        bw.write("}\n");
-        
-        for (Object key : obj.keySet()) {
-
-            bw.write("public Builder "+StringUtils.capitalize(key.toString())+"(final String "+key.toString()+") {\n");
-            bw.write("this."+key.toString()+" = "+key.toString()+";\n");
-            bw.write("return this."+key.toString()+";\n");
-            bw.write("}\n");
-            bw.write("\n");
-        }
-        
-        //
-        bw.write("public "+sNombreClass+" build() {\n");
-        bw.write("return new "+sNombreClass+"(this);\n");
-        bw.write("}\n");
-        
-        // cierra el bloque builder
-        bw.write("}\n\n");
-        
-        
-        // bloque constructor privado
-        // private TuplasCias(Builder builder) {
-        bw.write("private "+sNombreClass+"(Builder builder) {\n");
-        
-        for (Object key : obj.keySet()) {
-            bw.write("this."+key.toString()+"=builder."+key.toString()+";\n");
-        }
-        bw.write("}\n\n");
-        
-        // cerrar el pie de la clase
-        bw.write("}\n");
-        bw.close();
-    }
-    
-    
-    /**
-     * Construir la clase serializable bean
-     * @param obj
-     * @param tabla
-     * @throws IOException 
-     */
-    public void MakeBean(JSONObject obj, String tabla) throws IOException
-    {
-        String sFichero = "bean.java";
-        BufferedWriter bw = new BufferedWriter(new FileWriter(sFichero));
-        String sNombreClass= "Bean"+StringUtils.capitalize(tabla);
-        
-        bw.write("import java.io.Serializable;\n");
-        bw.write("\n");
-        
-        bw.write("public class " + sNombreClass + " implements Serializable {\n");
-        
-        bw.write("\n");
-        
-        // declaración de variables
-        for (Object key : obj.keySet()) {
-            bw.write("private String "+key.toString()+";\n");
-        }
-        
-        bw.write("\n");
-        
-        // bloque setters
-        for (Object key : obj.keySet()) {
-
-            bw.write("public String set"+StringUtils.capitalize(key.toString())+"(String "+key.toString()+") {\n");
-            bw.write("this."+key.toString()+"="+key.toString()+";\n");
-            bw.write("}\n");
-            bw.write("\n");
-        }
-        
-        // bloque getters
-        for (Object key : obj.keySet()) {
-
-            bw.write("public String get"+StringUtils.capitalize(key.toString())+"() {\n");
-            bw.write("return "+key.toString()+";\n");
-            bw.write("}\n");
-            bw.write("\n");
-        }
-        
-        // cerrar el pie de la clase
-        bw.write("}\n");
-        bw.close();
-        
-    }
     
     /**
      * @param args the command line arguments
@@ -321,9 +277,11 @@ public class MakeEntities {
         MakeEntities mt = new MakeEntities();
         JSONObject obj= mt.ReadBodyTable(args[0]);
         
-        mt.MakeTuplasClass(obj,args[0]);
-        mt.MakeSQL(obj, args[0]);
-        mt.MakeBean(obj, args[0]);
+        mt.MakeEntityClass(obj,args[0]);
+        
+        mt.MakeRepository(obj, args[0]);
+        
+        mt.MakeRestController(obj, args[0]);
         
         //System.out.print(obj.size());
         /*
