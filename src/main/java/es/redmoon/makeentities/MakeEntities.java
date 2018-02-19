@@ -83,6 +83,9 @@ public class MakeEntities {
             //System.out.println(obj.get(key).toString());
 
             switch (obj.get(key).toString()) {
+                case "integer":
+                    Tipo="Integer";
+                    break;
                 case "character varying":
                     Tipo="String";
                     break;
@@ -151,6 +154,7 @@ public class MakeEntities {
         // imports
         bw.write("import org.slf4j.Logger;\n");
         bw.write("import org.slf4j.LoggerFactory;\n");
+        bw.write("import org.springframework.beans.factory.annotation.Autowired;\n");
         bw.write("import org.springframework.web.bind.annotation.*;\n");
         bw.write("\n");
         
@@ -159,6 +163,7 @@ public class MakeEntities {
         bw.write("public class " + sNombreClass + " {\n");
         bw.write("\n");
         bw.write("private static final Logger logger = LoggerFactory.getLogger("+sNombreClass+".class);\n");
+        bw.write("private final "+StringUtils.capitalize(tabla)+"Repository "+tabla+"Repository;\n");
         bw.write("\n");
         bw.write("\n");
         

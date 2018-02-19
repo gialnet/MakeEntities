@@ -6,18 +6,15 @@ import javax.persistence.Id;
 
 @Data
 @Entity
-public class Tickets implements Serializable {
-private String tipo;
-private integer minutos_comprados;
-private point geopos;
-private integer minutos_servidos;
-private String canal_compra;
-private String pendiente;
-private String observaciones;
-private integer id;
-private timestamp fecha_buy;
-private integer estanque;
-private timestamp fecha_riego;
-private integer nticket;
+public class Propiedades implements Serializable {
+private String descripcion;
+private String horas;
+private String codigo;
+private String comunero;
+private String ordenriego;
+private String propietario;
+private String unidades;
+private String anejo;
+private String comunidad;
 
 }

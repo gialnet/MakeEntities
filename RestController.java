@@ -1,15 +1,17 @@
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class TicketsController {
+public class PropiedadesController {
 
-private static final Logger logger = LoggerFactory.getLogger(TicketsController.class);
+private static final Logger logger = LoggerFactory.getLogger(PropiedadesController.class);
+private final PropiedadesRepository propiedadesRepository;
 
 
 @Autowired
-public TicketsController(TicketsRepository ticketsRepository) {
-this.ticketsRepository = ticketsRepository;
+public PropiedadesController(PropiedadesRepository propiedadesRepository) {
+this.propiedadesRepository = propiedadesRepository;
 }
 }
